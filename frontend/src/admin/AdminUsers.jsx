@@ -41,7 +41,16 @@ const AdminUsers = () => {
                     {u.role.toUpperCase()}
                   </span>
                 </td>
-                <td style={tdStyle}>{new Date(u.createdAt).toLocaleDateString()}</td>
+                <td style={tdStyle}>
+                  {u.createdAt 
+                    ? new Date(u.createdAt).toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric' 
+                      })
+                    : 'N/A'
+                  }
+                </td>
               </tr>
             ))}
           </tbody>
