@@ -23,6 +23,6 @@ const userSchema = new mongoose.Schema({
         type:Boolean,
         default:false
     },
-});
+}, { timestamps: true }); // ← Add this
 
 module.exports = mongoose.model("User",userSchema);
