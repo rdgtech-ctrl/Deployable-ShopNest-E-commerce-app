@@ -1,4 +1,3 @@
-// all users routes will be in here
 const express = require("express");
 const { protect } = require("../middleware/authMiddleware");
 const { admin } = require("../middleware/adminMiddleware");
@@ -18,18 +17,11 @@ router
   .route("/")
   .get(getProducts)
   .post(protect, admin, upload.single("image"), createProduct);
+
 router
   .route("/:id")
   .get(getProductById)
-  .put(protect, admin, updateProduct)
+  .put(protect, admin, upload.single("image"), updateProduct)  // ← Added upload middleware here
   .delete(protect, admin, deleteProduct);
 
 module.exports = router;
-
-/*
-Total four operations are there :-
-C - POST (CREATE)
-R - GET (READ)
-U - UPDATE
-D - DELETE
-*/

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { removeFromCart, addToCart } from '../redux/cartSlice';
@@ -9,7 +9,18 @@ const Cart = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  // Debug log - see what's in cart
+  useEffect(() => {
+    console.log("=== CART DEBUG ===");
+    console.log("Full cartItems:", JSON.stringify(cartItems, null, 2));
+    if (cartItems.length > 0) {
+      console.log("First item keys:", Object.keys(cartItems[0]));
+      console.log("First item:", cartItems[0]);
+    }
+  }, [cartItems]);
+
   const handleRemove = (id) => {
+    console.log("Removing item with id:", id);
     dispatch(removeFromCart(id));
   };
 
@@ -30,7 +41,7 @@ const Cart = () => {
         <div className="cart-layout">
           <div className="cart-items">
             {cartItems.map((item) => (
-              <div key={item.productId} className="cart-item">
+              <div key={item._id} className="cart-item">
                 <img src={item.imageUrl} alt={item.name} className="cart-item-image" />
                 <div className="cart-item-details">
                   <h4>{item.name}</h4>
@@ -40,7 +51,7 @@ const Cart = () => {
                     <span>{item.qty}</span>
                     <button onClick={() => handleUpdateQty(item, item.qty + 1)}>+</button>
                   </div>
-                  <button onClick={() => handleRemove(item.productId)} className="btn-remove">Remove</button>
+                  <button onClick={() => handleRemove(item._id)} className="btn-remove">Remove</button>
                 </div>
               </div>
             ))}

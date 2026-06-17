@@ -5,27 +5,56 @@ const AdminOrders = () => {
   const { user } = useContext(AuthContext);
   const [orders, setOrders] = useState([]);
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      const res = await fetch('/api/orders', {
+useEffect(() => {
+  if (!user) return;
+  
+  const fetchOrders = async () => {
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      
+      const res = await fetch(`${apiUrl}/api/orders`, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
       const data = await res.json();
       setOrders(Array.isArray(data) ? data : []);
-    };
-    fetchOrders();
-  }, [user]);
-
-  const updateStatus = async (id, status) => {
-    const res = await fetch(`/api/orders/${id}/status`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` },
-      body: JSON.stringify({ status })
-    });
-    if (res.ok) {
-      setOrders(orders.map(order => order._id === id ? { ...order, status } : order));
+    } catch (error) {
+      console.error('Error fetching orders:', error);
     }
   };
+  fetchOrders();
+}, [user]);
+
+  // ← MOVE THIS FUNCTION INSIDE
+const updateStatus = async (id, status) => {
+  try {
+    console.log('Updating order:', id, 'Status:', status);
+    
+    // ✅ Use full backend URL
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    
+    const res = await fetch(`${apiUrl}/api/orders/${id}/status`, {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${user.token}`
+      },
+      body: JSON.stringify({ status })
+    });
+
+    console.log('Response:', res.status);
+
+    if (res.ok) {
+      const updatedOrder = await res.json();
+      setOrders(orders.map(o => o._id === id ? updatedOrder : o));
+      console.log('Order updated successfully');
+    } else {
+      const error = await res.json();
+      console.error('Error:', error);
+    }
+  } catch (error) {
+    console.error('Error updating status:', error);
+  }
+};
 
   return (
     <div style={containerStyle}>
@@ -42,25 +71,33 @@ const AdminOrders = () => {
             </tr>
           </thead>
           <tbody>
-            {orders.map(order => (
-              <tr key={order._id} style={rowStyle}>
-                <td style={tdStyle}>{order._id.substring(0, 8)}...</td>
-                <td style={tdStyle}>{order.userId?.name || 'Deleted User'}</td>
-                <td style={tdStyle}>₹{order.totalAmount.toFixed(2)}</td>
-                <td style={tdStyle}>{new Date(order.createdAt).toLocaleDateString()}</td>
-                <td style={tdStyle}>
-                  <select 
-                    value={order.status} 
-                    onChange={(e) => updateStatus(order._id, e.target.value)}
-                    style={{ background: '#09090b', color: '#fff', padding: '6px', border: '1px solid #27272a', borderRadius: '4px', outline: 'none' }}
-                  >
-                    <option value="Pending">Pending</option>
-                    <option value="Shipped">Shipped</option>
-                    <option value="Delivered">Delivered</option>
-                  </select>
+            {orders.length === 0 ? (
+              <tr>
+                <td colSpan="5" style={{ ...tdStyle, textAlign: 'center', color: '#a1a1aa' }}>
+                  No orders found
                 </td>
               </tr>
-            ))}
+            ) : (
+              orders.map(order => (
+                <tr key={order._id} style={rowStyle}>
+                  <td style={tdStyle}>{order._id.substring(0, 8)}...</td>
+                  <td style={tdStyle}>{order.userId?.name || 'Deleted User'}</td>
+                  <td style={tdStyle}>₹{order.totalAmount.toFixed(2)}</td>
+                  <td style={tdStyle}>{new Date(order.createdAt).toLocaleDateString()}</td>
+                  <td style={tdStyle}>
+                    <select 
+                      value={order.status} 
+                      onChange={(e) => updateStatus(order._id, e.target.value)}
+                      style={{ background: '#09090b', color: '#fff', padding: '6px', border: '1px solid #27272a', borderRadius: '4px', outline: 'none' }}
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="shipped">Shipped</option>
+                      <option value="delivered">Delivered</option>
+                    </select>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

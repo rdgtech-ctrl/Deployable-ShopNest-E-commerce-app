@@ -13,26 +13,28 @@ const cartSlice = createSlice({
     addToCart: (state, action) => {
       const item = action.payload;
       const existItem = state.cartItems.find((x) => x._id === item._id);
+      
       if (existItem) {
-        state.cartItems = state.cartItems.map((x) =>
-          x._id === item._id ? item : x,
-        );
+        existItem.qty = item.qty;  // Update quantity only
       } else {
-        state.cartItems = [...state.cartItems, item];
+        state.cartItems.push(item);
       }
+      
       localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
     },
-    removeFromCart:(state,action)=> {
-        const itemId = action.payload;
-        // action.payload is simply the data you pass when you dispatch the action
-        state.cartItems = state.cartItems.filter((x) => x._id !== itemId)
-        localStorage.setItem('cartItems',JSON.stringify(state.cartItems))
+    
+    removeFromCart: (state, action) => {
+      const itemId = action.payload;
+      state.cartItems = state.cartItems.filter((x) => x._id !== itemId);
+      localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
     },
-    clearCart:(state) => {
-        state.cartItems = [];
-        localStorage.removeItem('cartItems')
+    
+    clearCart: (state) => {
+      state.cartItems = [];
+      localStorage.removeItem("cartItems");
     },
   },
 });
+
 export const { addToCart, removeFromCart, clearCart } = cartSlice.actions;
 export default cartSlice.reducer;

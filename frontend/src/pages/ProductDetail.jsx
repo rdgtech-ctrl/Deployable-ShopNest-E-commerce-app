@@ -27,8 +27,14 @@ const ProductDetail = () => {
 
   const handleAddToCart = () => {
     if (product) {
+      console.log("Adding to cart:", {
+        _id: product._id,
+        name: product.name,
+        price: product.price,
+        qty: 1
+      });
       dispatch(addToCart({
-        productId: product._id,
+        _id: product._id,
         name: product.name,
         price: product.price,
         imageUrl: product.imageUrl,

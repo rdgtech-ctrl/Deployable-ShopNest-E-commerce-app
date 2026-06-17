@@ -52,7 +52,7 @@ const Checkout = () => {
       }
 
       const options = {
-        key: 'rzp_test_dummykey123',
+        key: import.meta.env.VITE_RAZORPAY_KEY,
         amount: orderData.amount,
         currency: orderData.currency,
         name: 'ShopNest',
